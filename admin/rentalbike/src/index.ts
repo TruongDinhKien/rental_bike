@@ -1,9 +1,9 @@
-import {ApplicationConfig, ServerApplication} from './application';
+import {ApplicationConfig, RentalbikeApplication} from './application';
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
-  const app = new ServerApplication(options);
+  const app = new RentalbikeApplication(options);
   await app.boot();
   await app.start();
 

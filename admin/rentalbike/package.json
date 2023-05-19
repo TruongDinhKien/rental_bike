@@ -40,7 +40,7 @@
     "type": "git",
     "url": ""
   },
-  "author": "quan.nguyen <quan.nguyen@nexpando.com>",
+  "author": "Trương Đình Kiên, Nguyễn Minh Quân <quan.nguyen@nexpando.com, kien.truong@nexpando.com>",
   "license": "",
   "files": [
     "README.md",
@@ -55,6 +55,7 @@
     "@loopback/rest": "^13.0.0",
     "@loopback/rest-explorer": "^6.0.0",
     "@loopback/service-proxy": "^6.0.0",
+    "csv-parser": "^3.0.0",
     "loopback-connector-postgresql": "^6.0.4",
     "tslib": "^2.0.0"
   },

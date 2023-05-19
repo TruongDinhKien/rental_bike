@@ -1,6 +1,8 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {Role} from './role.model';
+import {Rental} from './rental.model';
 
-@model({settings: {strict: false}})
+@model({settings: {strict: true}})
 export class User extends Entity {
   @property({
     type: 'number',
@@ -34,11 +36,11 @@ export class User extends Entity {
   })
   phoneNumber?: string;
 
-  @property({
-    type: 'number',
-  })
-  roleId?: number;
+  @belongsTo(() => Role)
+  roleId: number;
 
+  @hasMany(() => Rental, {keyTo: 'userId'})
+  rentals: Rental[];
   // Define well-known properties here
 
   // Indexer property to allow additional data

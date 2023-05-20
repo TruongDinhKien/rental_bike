@@ -16,7 +16,7 @@ import {
   requestBody,
 } from '@loopback/rest';
 import {
-  User,
+  Users,
   Rental,
 } from '../models';
 import {UserRepository} from '../repositories';
@@ -39,7 +39,7 @@ export class UserRentalController {
     },
   })
   async find(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Rental>,
   ): Promise<Rental[]> {
     return this.userRepository.rentals(id).find(filter);
@@ -54,14 +54,14 @@ export class UserRentalController {
     },
   })
   async create(
-    @param.path.number('id') id: typeof User.prototype.userId,
+    @param.path.number('id') id: typeof Users.prototype.id,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInUser',
             exclude: ['rentalId'],
-            optional: ['userId']
+            optional: ['id']
           }),
         },
       },
@@ -73,13 +73,13 @@ export class UserRentalController {
   @patch('/users/{id}/rentals', {
     responses: {
       '200': {
-        description: 'User.Rental PATCH success count',
+        description: 'Users.Rental PATCH success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async patch(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
@@ -96,13 +96,13 @@ export class UserRentalController {
   @del('/users/{id}/rentals', {
     responses: {
       '200': {
-        description: 'User.Rental DELETE success count',
+        description: 'Users.Rental DELETE success count',
         content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async delete(
-    @param.path.number('id') id: number,
+    @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Rental)) where?: Where<Rental>,
   ): Promise<Count> {
     return this.userRepository.rentals(id).delete(where);

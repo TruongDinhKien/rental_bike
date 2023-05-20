@@ -7,7 +7,7 @@ import {
   getModelSchemaRef,
 } from '@loopback/rest';
 import {
-  User,
+  Users,
   Role,
 } from '../models';
 import {UserRepository} from '../repositories';
@@ -31,7 +31,7 @@ export class UserRoleController {
     },
   })
   async getRole(
-    @param.path.number('id') id: typeof User.prototype.userId,
+    @param.path.number('id') id: typeof Users.prototype.id,
   ): Promise<Role> {
     return this.userRepository.role(id);
   }

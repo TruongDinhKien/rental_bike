@@ -27,7 +27,7 @@ import {DefaultCrudRepository} from '@loopback/repository';
 import path from 'path';
 
 export async function migrate(args: string[]) {
-  const existingSchema = args.includes('--rebuild') ? 'drop' : 'alter';
+  const existingSchema = args.includes('rebuild') ? 'drop' : 'alter';
   console.log('Migrating schemas (%s existing schema)', existingSchema);
 
   const app = new RentalbikeApplication();

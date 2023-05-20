@@ -1,6 +1,6 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model({settings: {strict: false}})
+@model({settings: {strict: true}})
 export class Rental extends Entity {
   @property({
     type: 'number',
@@ -34,6 +34,10 @@ export class Rental extends Entity {
   })
   status?: boolean;
 
+  @property({
+    type: 'number',
+  })
+  revenueId?: number;
   // Define well-known properties here
 
   // Indexer property to allow additional data

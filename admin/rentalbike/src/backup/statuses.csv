@@ -1,0 +1,5 @@
+bike_status_id,name
+1,Available
+2,Rented
+3,Under Maintenance
+4,Out of Service

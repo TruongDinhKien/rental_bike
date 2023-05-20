@@ -1,6 +1,7 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, hasOne} from '@loopback/repository';
+import {Rental} from './rental.model';
 
-@model({settings: {strict: false}})
+@model({settings: {strict: true}})
 export class Revenue extends Entity {
   @property({
     type: 'number',
@@ -24,6 +25,8 @@ export class Revenue extends Entity {
   })
   date?: string;
 
+  @hasOne(() => Rental)
+  rental: Rental;
   // Define well-known properties here
 
   // Indexer property to allow additional data

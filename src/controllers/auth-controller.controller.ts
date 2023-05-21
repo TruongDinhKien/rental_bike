@@ -7,7 +7,7 @@ import {
   property,
   repository,
   Where,
-} from '@loopback/repository';
+} from '@loopback/repository'
 import {
   post,
   param,
@@ -20,17 +20,17 @@ import {
   response,
   SchemaObject,
   HttpErrors,
-} from '@loopback/rest';
-import {Users} from '../models';
-import {UserRepository} from '../repositories';
-import {UserService, authenticate} from '@loopback/authentication';
-import {PasswordHasherBindings, UserServiceBindings} from '../keys';
-import {inject, intercept, Interceptor} from '@loopback/core';
-import {SecurityBindings, UserProfile} from '@loopback/security';
-import {JWTService, PasswordHasher} from '../services';
-import {Credentials, TokenServiceBindings} from '@loopback/authentication-jwt';
-import {genSalt, hash} from 'bcryptjs';
-import _ from 'lodash';
+} from '@loopback/rest'
+import { Users } from '../models'
+import { UserRepository } from '../repositories'
+import { UserService, authenticate } from '@loopback/authentication'
+import { PasswordHasherBindings, UserServiceBindings } from '../keys'
+import { inject, intercept, Interceptor } from '@loopback/core'
+import { SecurityBindings, UserProfile } from '@loopback/security'
+import { JWTService, PasswordHasher } from '../services'
+import { Credentials, TokenServiceBindings } from '@loopback/authentication-jwt'
+import { genSalt, hash } from 'bcryptjs'
+import _ from 'lodash'
 
 @model()
 export class NewUserRequest extends Users {
@@ -38,7 +38,7 @@ export class NewUserRequest extends Users {
     type: 'string',
     required: true,
   })
-  password: string;
+  password: string
 }
 
 const CredentialsSchema: SchemaObject = {
@@ -54,24 +54,21 @@ const CredentialsSchema: SchemaObject = {
       minLength: 5,
     },
   },
-};
+}
 
 export const CredentialsRequestBody = {
   description: 'The input of login function',
   required: true,
   content: {
-    'application/json': {schema: CredentialsSchema},
+    'application/json': { schema: CredentialsSchema },
   },
-};
+}
 
-const newUserRequestDefaultRole: Interceptor = async (
-  invocationCtx: any,
-  next,
-) => {
-  if (invocationCtx.args[0]) invocationCtx.args[0].roleId = 0;
-  const result = await next();
-  return result;
-};
+const newUserRequestDefaultRole: Interceptor = async (invocationCtx: any, next) => {
+  if (invocationCtx.args[0]) invocationCtx.args[0].roleId = 0
+  const result = await next()
+  return result
+}
 
 export class AuthController {
   constructor(
@@ -79,7 +76,7 @@ export class AuthController {
     public jwtService: JWTService,
     @inject(UserServiceBindings.USER_SERVICE)
     public userService: UserService<Users, Credentials>,
-    @inject(SecurityBindings.USER, {optional: true})
+    @inject(SecurityBindings.USER, { optional: true })
     public user: UserProfile,
     @repository(UserRepository)
     protected userRepository: UserRepository,
@@ -90,7 +87,7 @@ export class AuthController {
   @post('/users')
   @response(200, {
     description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Users)}},
+    content: { 'application/json': { schema: getModelSchemaRef(Users) } },
   })
   async create(
     @requestBody({
@@ -105,16 +102,16 @@ export class AuthController {
     })
     user: Omit<Users, 'id'>,
   ): Promise<Users> {
-    return this.userRepository.create(user);
+    return this.userRepository.create(user)
   }
 
   @get('/users/count')
   @response(200, {
     description: 'User model count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async count(@param.where(Users) where?: Where<Users>): Promise<Count> {
-    return this.userRepository.count(where);
+    return this.userRepository.count(where)
   }
 
   @get('/users')
@@ -124,32 +121,32 @@ export class AuthController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Users, {includeRelations: true}),
+          items: getModelSchemaRef(Users, { includeRelations: true }),
         },
       },
     },
   })
   async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
-    return this.userRepository.find(filter);
+    return this.userRepository.find(filter)
   }
 
   @patch('/users')
   @response(200, {
     description: 'User PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true}),
+          schema: getModelSchemaRef(Users, { partial: true }),
         },
       },
     })
     users: Users,
     @param.where(Users) where?: Where<Users>,
   ): Promise<Count> {
-    return this.userRepository.updateAll(users, where);
+    return this.userRepository.updateAll(users, where)
   }
 
   @get('/users/{id}')
@@ -157,16 +154,16 @@ export class AuthController {
     description: 'User model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Users, {includeRelations: true}),
+        schema: getModelSchemaRef(Users, { includeRelations: true }),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Users, {exclude: 'where'})
+    @param.filter(Users, { exclude: 'where' })
     filter?: FilterExcludingWhere<Users>,
   ): Promise<Users> {
-    return this.userRepository.findById(id, filter);
+    return this.userRepository.findById(id, filter)
   }
 
   @patch('/users/{id}')
@@ -178,24 +175,21 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true}),
+          schema: getModelSchemaRef(Users, { partial: true }),
         },
       },
     })
     users: Users,
   ): Promise<void> {
-    await this.userRepository.updateById(id, users);
+    await this.userRepository.updateById(id, users)
   }
 
   @put('/users/{id}')
   @response(204, {
     description: 'User PUT success',
   })
-  async replaceById(
-    @param.path.string('id') id: string,
-    @requestBody() users: Users,
-  ): Promise<void> {
-    await this.userRepository.replaceById(id, users);
+  async replaceById(@param.path.string('id') id: string, @requestBody() users: Users): Promise<void> {
+    await this.userRepository.replaceById(id, users)
   }
 
   @del('/users/{id}')
@@ -203,7 +197,7 @@ export class AuthController {
     description: 'User DELETE success',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRepository.deleteById(id);
+    await this.userRepository.deleteById(id)
   }
 
   @post('/users/login', {
@@ -225,20 +219,18 @@ export class AuthController {
       },
     },
   })
-  async login(
-    @requestBody(CredentialsRequestBody) credentials: Credentials,
-  ): Promise<{token: string}> {
+  async login(@requestBody(CredentialsRequestBody) credentials: Credentials): Promise<any> {
     // ensure the user exists, and the password is correct
-    const user = await this.userService.verifyCredentials(credentials);
+    const user = await this.userService.verifyCredentials(credentials)
     // convert a User object into a UserProfile object (reduced set of properties)
-    const userProfile = this.userService.convertToUserProfile(user);
+    const userProfile = this.userService.convertToUserProfile(user)
     // create a JSON Web Token based on the user profile
-    const token = await this.jwtService.generateToken(userProfile);
-    return {token};
+    const token = await this.jwtService.generateToken(userProfile)
+    return { token, ...user }
   }
 
   @authenticate('jwt')
-  @get('/whoAmI', {
+  @get('/profiles', {
     responses: {
       '200': {
         description: 'Return current user',
@@ -252,11 +244,12 @@ export class AuthController {
       },
     },
   })
-  async whoAmI(
+  async profiles(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<any> {
-    return currentUserProfile;
+    console.log(currentUserProfile,'currentUserProfile');
+    return currentUserProfile
   }
 
   @intercept(newUserRequestDefaultRole)
@@ -287,20 +280,18 @@ export class AuthController {
     })
     newUserRequest: Omit<NewUserRequest, 'id'>,
   ): Promise<Users> {
-    const existEmailError = 'Email already exists';
+    const existEmailError = 'Email already exists'
     // if email already exists
     const user = await this.userRepository.find({
-      where: {email: newUserRequest.email},
-    });
-    if (user.length > 0) throw new HttpErrors.Forbidden(existEmailError);
+      where: { email: newUserRequest.email },
+    })
+    if (user.length > 0) throw new HttpErrors.Forbidden(existEmailError)
 
-    const password = await hash(newUserRequest.password, await genSalt());
-    const savedUser = await this.userRepository.create(
-      _.omit(newUserRequest, 'password'),
-    );
+    const password = await hash(newUserRequest.password, await genSalt())
+    const savedUser = await this.userRepository.create(_.omit(newUserRequest, 'password'))
 
-    await this.userRepository.userCredentials(savedUser.id).create({password});
+    await this.userRepository.userCredentials(savedUser.id).create({ password })
 
-    return savedUser;
+    return savedUser
   }
 }

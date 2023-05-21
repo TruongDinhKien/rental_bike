@@ -73,7 +73,7 @@ const newUserRequestDefaultRole: Interceptor = async (
   return result;
 };
 
-export class UserController {
+export class AuthController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)
     public jwtService: JWTService,
@@ -279,14 +279,14 @@ export class UserController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(NewUserRequest, {
-            title: 'NewUser1',
+            title: 'Create new account',
+            exclude: ['id', 'roleId'],
           }),
         },
       },
     })
-    newUserRequest: NewUserRequest,
+    newUserRequest: Omit<NewUserRequest, 'id'>,
   ): Promise<Users> {
-    console.log(newUserRequest, 'newUserRequest');
     const existEmailError = 'Email already exists';
     // if email already exists
     const user = await this.userRepository.find({

@@ -3,6 +3,8 @@ import {
   CountSchema,
   Filter,
   FilterExcludingWhere,
+  model,
+  property,
   repository,
   Where,
 } from '@loopback/repository';
@@ -16,14 +18,73 @@ import {
   del,
   requestBody,
   response,
+  SchemaObject,
+  HttpErrors,
 } from '@loopback/rest';
 import {Users} from '../models';
 import {UserRepository} from '../repositories';
+import {UserService, authenticate} from '@loopback/authentication';
+import {PasswordHasherBindings, UserServiceBindings} from '../keys';
+import {inject, intercept, Interceptor} from '@loopback/core';
+import {SecurityBindings, UserProfile} from '@loopback/security';
+import {JWTService, PasswordHasher} from '../services';
+import {Credentials, TokenServiceBindings} from '@loopback/authentication-jwt';
+import {genSalt, hash} from 'bcryptjs';
+import _ from 'lodash';
 
-export class AuthControllerController {
+@model()
+export class NewUserRequest extends Users {
+  @property({
+    type: 'string',
+    required: true,
+  })
+  password: string;
+}
+
+const CredentialsSchema: SchemaObject = {
+  type: 'object',
+  required: ['email', 'password'],
+  properties: {
+    email: {
+      type: 'string',
+      format: 'email',
+    },
+    password: {
+      type: 'string',
+      minLength: 5,
+    },
+  },
+};
+
+export const CredentialsRequestBody = {
+  description: 'The input of login function',
+  required: true,
+  content: {
+    'application/json': {schema: CredentialsSchema},
+  },
+};
+
+const newUserRequestDefaultRole: Interceptor = async (
+  invocationCtx: any,
+  next,
+) => {
+  if (invocationCtx.args[0]) invocationCtx.args[0].roleId = 0;
+  const result = await next();
+  return result;
+};
+
+export class AuthController {
   constructor(
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: JWTService,
+    @inject(UserServiceBindings.USER_SERVICE)
+    public userService: UserService<Users, Credentials>,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user: UserProfile,
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    protected userRepository: UserRepository,
+    @inject(PasswordHasherBindings.PASSWORD_HASHER)
+    public passwordHasher: PasswordHasher,
   ) {}
 
   @post('/users')
@@ -52,9 +113,7 @@ export class AuthControllerController {
     description: 'User model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Users) where?: Where<Users>,
-  ): Promise<Count> {
+  async count(@param.where(Users) where?: Where<Users>): Promise<Count> {
     return this.userRepository.count(where);
   }
 
@@ -70,9 +129,7 @@ export class AuthControllerController {
       },
     },
   })
-  async find(
-    @param.filter(Users) filter?: Filter<Users>,
-  ): Promise<Users[]> {
+  async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
     return this.userRepository.find(filter);
   }
 
@@ -106,7 +163,8 @@ export class AuthControllerController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Users, {exclude: 'where'}) filter?: FilterExcludingWhere<Users>
+    @param.filter(Users, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Users>,
   ): Promise<Users> {
     return this.userRepository.findById(id, filter);
   }
@@ -135,9 +193,9 @@ export class AuthControllerController {
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() user: Users,
+    @requestBody() users: Users,
   ): Promise<void> {
-    await this.userRepository.replaceById(id, user);
+    await this.userRepository.replaceById(id, users);
   }
 
   @del('/users/{id}')
@@ -146,5 +204,103 @@ export class AuthControllerController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.userRepository.deleteById(id);
+  }
+
+  @post('/users/login', {
+    responses: {
+      '200': {
+        description: 'Token',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async login(
+    @requestBody(CredentialsRequestBody) credentials: Credentials,
+  ): Promise<{token: string}> {
+    // ensure the user exists, and the password is correct
+    const user = await this.userService.verifyCredentials(credentials);
+    // convert a User object into a UserProfile object (reduced set of properties)
+    const userProfile = this.userService.convertToUserProfile(user);
+    // create a JSON Web Token based on the user profile
+    const token = await this.jwtService.generateToken(userProfile);
+    return {token};
+  }
+
+  @authenticate('jwt')
+  @get('/whoAmI', {
+    responses: {
+      '200': {
+        description: 'Return current user',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  })
+  async whoAmI(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+  ): Promise<any> {
+    return currentUserProfile;
+  }
+
+  @intercept(newUserRequestDefaultRole)
+  @post('/signup', {
+    responses: {
+      '200': {
+        description: 'User',
+        content: {
+          'application/json': {
+            schema: {
+              'x-ts-type': NewUserRequest,
+            },
+          },
+        },
+      },
+    },
+  })
+  async signUp(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(NewUserRequest, {
+            title: 'Create new account',
+            exclude: ['id', 'roleId'],
+          }),
+        },
+      },
+    })
+    newUserRequest: Omit<NewUserRequest, 'id'>,
+  ): Promise<Users> {
+    const existEmailError = 'Email already exists';
+    // if email already exists
+    const user = await this.userRepository.find({
+      where: {email: newUserRequest.email},
+    });
+    if (user.length > 0) throw new HttpErrors.Forbidden(existEmailError);
+
+    const password = await hash(newUserRequest.password, await genSalt());
+    const savedUser = await this.userRepository.create(
+      _.omit(newUserRequest, 'password'),
+    );
+
+    await this.userRepository.userCredentials(savedUser.id).create({password});
+
+    return savedUser;
   }
 }

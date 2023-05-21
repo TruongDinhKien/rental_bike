@@ -25,6 +25,7 @@ import csvParser from 'csv-parser';
 import fs from 'fs';
 import {DefaultCrudRepository} from '@loopback/repository';
 import path from 'path';
+import {UserCredentialsRepository} from './repositories/user-credentials.repository';
 
 export async function migrate(args: string[]) {
   const existingSchema = args.includes('rebuild') ? 'drop' : 'alter';
@@ -36,13 +37,20 @@ export async function migrate(args: string[]) {
 
   const userRepository = await app.getRepository(UserRepository);
   const roleRepository = await app.getRepository(RoleRepository);
+  const credenttialsRepository = await app.getRepository(
+    UserCredentialsRepository,
+  );
   const bikeRepository = await app.getRepository(BikeRepository);
   // const bikeRepository = await app.getRepository(BikeRepository);
   // const bikeRepository = await app.getRepository(BikeRepository);
 
   // Read and insert data from CSV files
-  // await insertDataFromCSV('../src/backup/users.csv', userRepository);
+  await insertDataFromCSV('../src/backup/users.csv', userRepository);
   await insertDataFromCSV('../src/backup/roles.csv', roleRepository);
+  await insertDataFromCSV(
+    '../src/backup/credenttials.csv',
+    credenttialsRepository,
+  );
   await insertDataFromCSV('../src/backup/bikes.csv', bikeRepository);
 
   // Connectors usually keep a pool of opened connections,

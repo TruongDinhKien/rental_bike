@@ -1,11 +1,2 @@
-email,password,first_name,last_name,phone_number,role_id
-johndoe@nexpando.com,pass123,John,Doe,1234567890,1
-janesmith@nexpando.com,pass456,Jane,Smith,9876543210,2
-mikebrown@nexpando.com,pass789,Mike,Brown,5555555555,2
-alicegreen@nexpando.com,passabc,Alice,Green,1111111111,3
-bobwilson@nexpando.com,passdef,Bob,Wilson,9999999999,3
-sarahjones@nexpando.com,passxyz,Sarah,Jones,4444444444,2
-matthewlee@nexpando.com,pass1234,Matthew,Lee,7777777777,1
-emilydavis@nexpando.com,pass5678,Emily,Davis,2222222222,3
-robertsmith@nexpando.com,pass90,Robert,Smith,8888888888,2
-lisawilliams@nexpando.com,passqwerty,Lisa,Williams,3333333333,3
+id,email,firstName,lastName,phoneNumber,roleId
+f736c367-7445-43ab-ba34-bbf8658db62b,admin@nexpando.com,John,Doe,1234567890,0

@@ -31,7 +31,7 @@ export class BikeBikestatusController {
     },
   })
   async getBikestatus(
-    @param.path.number('id') id: typeof Bike.prototype.bikeId,
+    @param.path.number('id') id: typeof Bike.prototype.id,
   ): Promise<Bikestatus> {
     return this.bikeRepository.bikestatus(id);
   }

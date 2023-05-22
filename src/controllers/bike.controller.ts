@@ -37,7 +37,7 @@ export class BikeController {
         'application/json': {
           schema: getModelSchemaRef(Bike, {
             title: 'NewBike',
-            exclude: ['bikeId'],
+            exclude: ['id'],
           }),
         },
       },
@@ -69,7 +69,8 @@ export class BikeController {
     },
   })
   async find(@param.filter(Bike) filter?: Filter<Bike>): Promise<Bike[]> {
-    return this.bikeRepository.find(filter);
+    console.log('abc');
+    return this.bikeRepository.find({});
   }
 
   @patch('/bikes')

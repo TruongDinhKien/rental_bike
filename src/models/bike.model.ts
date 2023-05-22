@@ -15,7 +15,7 @@ export class Bike extends Entity {
     id: true,
     generated: true,
   })
-  bikeId?: number;
+  id?: number;
 
   @property({
     type: 'string',

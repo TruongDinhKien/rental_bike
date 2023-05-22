@@ -7,13 +7,13 @@ import {RentalRepository} from './rental.repository';
 
 export class BikeRepository extends DefaultCrudRepository<
   Bike,
-  typeof Bike.prototype.bikeId,
+  typeof Bike.prototype.id,
   BikeRelations
 > {
 
-  public readonly bikestatus: BelongsToAccessor<Bikestatus, typeof Bike.prototype.bikeId>;
+  public readonly bikestatus: BelongsToAccessor<Bikestatus, typeof Bike.prototype.id>;
 
-  public readonly rentals: HasManyRepositoryFactory<Rental, typeof Bike.prototype.bikeId>;
+  public readonly rentals: HasManyRepositoryFactory<Rental, typeof Bike.prototype.id>;
 
   constructor(@inject('datasources.db') dataSource: DbDataSource, @repository.getter('BikestatusRepository') protected bikestatusRepositoryGetter: Getter<BikestatusRepository>, @repository.getter('RentalRepository') protected rentalRepositoryGetter: Getter<RentalRepository>,) {
     super(Bike, dataSource);

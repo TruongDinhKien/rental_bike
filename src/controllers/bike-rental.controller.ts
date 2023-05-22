@@ -54,14 +54,14 @@ export class BikeRentalController {
     },
   })
   async create(
-    @param.path.number('id') id: typeof Bike.prototype.bikeId,
+    @param.path.number('id') id: typeof Bike.prototype.id,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInBike',
             exclude: ['rentalId'],
-            optional: ['bikeId']
+            optional: ['id']
           }),
         },
       },

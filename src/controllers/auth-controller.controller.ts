@@ -126,7 +126,7 @@ export class AuthController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Users, { includeRelations: true }),
+          items: getModelSchemaRef(Users, { includeRelations: false }),
         },
       },
     },
@@ -167,12 +167,7 @@ export class AuthController {
     @param.path.string('id') id: string,
     @param.filter(UserRes, { exclude: 'where' }) filter?: FilterExcludingWhere<Users>,
   ): Promise<UserRes> {
-    const user: UserRes = await this.userRepository.findById(id, { ...filter, include: [{ relation: 'role' }] })
-    if (user?.role) {
-      user.roleName = user.role.name
-      delete user.role
-    }
-    console.log(user);
+    const user: UserRes = await this.userRepository.findById(id, { ...filter })
     return user
   }
 

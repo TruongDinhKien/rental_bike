@@ -1,2 +1,2 @@
-id,email,firstName,lastName,phoneNumber,roleId
-f736c367-7445-43ab-ba34-bbf8658db62b,admin@nexpando.com,John,Doe,1234567890,1
+id,email,firstName,lastName,phoneNumber,roles
+f736c367-7445-43ab-ba34-bbf8658db62b,admin@nexpando.com,John,Doe,1234567890,["admin"]

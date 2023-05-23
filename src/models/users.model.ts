@@ -49,8 +49,11 @@ export class Users extends Entity {
   })
   phoneNumber?: string;
 
-  @belongsTo(() => Role, {keyFrom: 'roleId', keyTo: 'id'})
-  roleId?: number;
+  @property({
+    type: 'array',
+    itemType: 'string',
+  })
+  roles?: string[];
 
   @hasMany(() => Rental, {keyFrom: 'id', keyTo: 'userId'})
   rentals: Rental[];

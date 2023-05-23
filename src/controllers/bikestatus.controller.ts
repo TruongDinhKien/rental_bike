@@ -37,12 +37,12 @@ export class BikestatusController {
         'application/json': {
           schema: getModelSchemaRef(Bikestatus, {
             title: 'NewBikestatus',
-            exclude: ['bikeStatusId'],
+            exclude: ['id'],
           }),
         },
       },
     })
-    bikestatus: Omit<Bikestatus, 'bikeStatusId'>,
+    bikestatus: Omit<Bikestatus, 'id'>,
   ): Promise<Bikestatus> {
     return this.bikestatusRepository.create(bikestatus);
   }

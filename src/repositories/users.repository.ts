@@ -8,7 +8,6 @@ import {
 } from '@loopback/repository';
 import {DbDataSource} from '../datasources';
 import {Users, UserRelations, Role, Rental} from '../models';
-import {RoleRepository} from './role.repository';
 import {RentalRepository} from './rental.repository';
 import {UserCredentials, UserCredentialsRepository} from '@loopback/authentication-jwt';
 
@@ -37,8 +36,6 @@ export class UserRepository extends DefaultCrudRepository<
   constructor(
     @inject('datasources.db') dataSource: DbDataSource,
     @repository.getter('RoleRepository')
-    protected roleRepositoryGetter: Getter<RoleRepository>,
-    @repository.getter('RentalRepository')
     protected rentalRepositoryGetter: Getter<RentalRepository>,
     @repository.getter('UserCredentialsRepository')
     protected userCredentialsRepositoryGetter: Getter<UserCredentialsRepository>
@@ -53,8 +50,6 @@ export class UserRepository extends DefaultCrudRepository<
       rentalRepositoryGetter,
     );
     this.registerInclusionResolver('rentals', this.rentals.inclusionResolver);
-    this.role = this.createBelongsToAccessorFor('role', roleRepositoryGetter);
-    this.registerInclusionResolver('role', this.role.inclusionResolver);
   }
 
   async findCredentials(

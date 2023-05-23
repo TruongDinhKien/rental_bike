@@ -1,26 +1,5 @@
-// import {RentalbikeApplication} from './application';
-
-// export async function migrate(args: string[]) {
-//   const existingSchema = args.includes('--rebuild') ? 'drop' : 'alter';
-//   console.log('Migrating schemas (%s existing schema)', existingSchema);
-
-//   const app = new RentalbikeApplication();
-//   await app.boot();
-//   await app.migrateSchema({existingSchema});
-
-//   // Connectors usually keep a pool of opened connections,
-//   // this keeps the process running even after all work is done.
-//   // We need to exit explicitly.
-//   process.exit(0);
-// }
-
-// migrate(process.argv).catch(err => {
-//   console.error('Cannot migrate database schema', err);
-//   process.exit(1);
-// });
-
 import {RentalbikeApplication} from './application';
-import {UserRepository, RoleRepository, BikeRepository} from './repositories';
+import {UserRepository, BikeRepository} from './repositories';
 import csvParser from 'csv-parser';
 import fs from 'fs';
 import {DefaultCrudRepository} from '@loopback/repository';
@@ -36,17 +15,13 @@ export async function migrate(args: string[]) {
   await app.migrateSchema({existingSchema});
 
   const userRepository = await app.getRepository(UserRepository);
-  const roleRepository = await app.getRepository(RoleRepository);
   const credenttialsRepository = await app.getRepository(
     UserCredentialsRepository,
   );
   const bikeRepository = await app.getRepository(BikeRepository);
-  // const bikeRepository = await app.getRepository(BikeRepository);
-  // const bikeRepository = await app.getRepository(BikeRepository);
 
   // Read and insert data from CSV files
   await insertDataFromCSV('../src/backup/users.csv', userRepository);
-  await insertDataFromCSV('../src/backup/roles.csv', roleRepository);
   await insertDataFromCSV(
     '../src/backup/credenttials.csv',
     credenttialsRepository,

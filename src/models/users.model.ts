@@ -49,7 +49,7 @@ export class Users extends Entity {
   })
   phoneNumber?: string;
 
-  @belongsTo(() => Role)
+  @belongsTo(() => Role, {keyFrom: 'roleId', keyTo: 'id'})
   roleId?: number;
 
   @hasMany(() => Rental, {keyFrom: 'id', keyTo: 'userId'})

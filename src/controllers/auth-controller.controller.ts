@@ -21,7 +21,7 @@ import {
   SchemaObject,
   HttpErrors,
 } from '@loopback/rest'
-import { Users } from '../models'
+import { Role, Users } from '../models'
 import { UserRepository } from '../repositories'
 import { UserService, authenticate } from '@loopback/authentication'
 import { PasswordHasherBindings, UserServiceBindings } from '../keys'
@@ -39,6 +39,11 @@ export class NewUserRequest extends Users {
     required: true,
   })
   password: string
+}
+
+@model()
+export class UserRes extends Users {
+  roleName?: string
 }
 
 const CredentialsSchema: SchemaObject = {
@@ -154,16 +159,21 @@ export class AuthController {
     description: 'User model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Users, { includeRelations: true }),
+        schema: getModelSchemaRef( UserRes, { includeRelations: false }),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Users, { exclude: 'where' })
-    filter?: FilterExcludingWhere<Users>,
-  ): Promise<Users> {
-    return this.userRepository.findById(id, filter)
+    @param.filter(UserRes, { exclude: 'where' }) filter?: FilterExcludingWhere<Users>,
+  ): Promise<UserRes> {
+    const user: UserRes = await this.userRepository.findById(id, { ...filter, include: [{ relation: 'role' }] })
+    if (user?.role) {
+      user.roleName = user.role.name
+      delete user.role
+    }
+    console.log(user);
+    return user
   }
 
   @patch('/users/{id}')
@@ -248,7 +258,7 @@ export class AuthController {
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
   ): Promise<any> {
-    console.log(currentUserProfile,'currentUserProfile');
+    console.log(currentUserProfile, 'currentUserProfile')
     return currentUserProfile
   }
 

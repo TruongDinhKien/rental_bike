@@ -54,18 +54,18 @@ export class RevenueRentalController {
     },
   })
   async create(
-    @param.path.number('id') id: typeof Revenue.prototype.revenueId,
+    @param.path.number('id') id: typeof Revenue.prototype.id,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInRevenue',
-            exclude: ['rentalId'],
+            exclude: ['id'],
             optional: ['revenueId']
           }),
         },
       },
-    }) rental: Omit<Rental, 'rentalId'>,
+    }) rental: Omit<Rental, 'id'>,
   ): Promise<Rental> {
     return this.revenueRepository.rental(id).create(rental);
   }

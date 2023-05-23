@@ -6,11 +6,11 @@ import {RentalRepository} from './rental.repository';
 
 export class RevenueRepository extends DefaultCrudRepository<
   Revenue,
-  typeof Revenue.prototype.revenueId,
+  typeof Revenue.prototype.id,
   RevenueRelations
 > {
 
-  public readonly rental: HasOneRepositoryFactory<Rental, typeof Revenue.prototype.revenueId>;
+  public readonly rental: HasOneRepositoryFactory<Rental, typeof Revenue.prototype.id>;
 
   constructor(
     @inject('datasources.db') dataSource: DbDataSource, @repository.getter('RentalRepository') protected rentalRepositoryGetter: Getter<RentalRepository>,

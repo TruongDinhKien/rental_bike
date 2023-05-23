@@ -8,7 +8,7 @@ export class Revenue extends Entity {
     id: true,
     generated: true,
   })
-  revenueId?: number;
+  id?: number;
 
   @property({
     type: 'number',
@@ -43,3 +43,4 @@ export interface RevenueRelations {
 }
 
 export type RevenueWithRelations = Revenue & RevenueRelations;
+ 

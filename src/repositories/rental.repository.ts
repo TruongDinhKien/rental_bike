@@ -5,7 +5,7 @@ import {Rental, RentalRelations} from '../models';
 
 export class RentalRepository extends DefaultCrudRepository<
   Rental,
-  typeof Rental.prototype.rentalId,
+  typeof Rental.prototype.id,
   RentalRelations
 > {
   constructor(

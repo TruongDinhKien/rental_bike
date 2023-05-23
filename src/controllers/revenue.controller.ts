@@ -37,12 +37,12 @@ export class RevenueController {
         'application/json': {
           schema: getModelSchemaRef(Revenue, {
             title: 'NewRevenue',
-            exclude: ['revenueId'],
+            exclude: ['id'],
           }),
         },
       },
     })
-    revenue: Omit<Revenue, 'revenueId'>,
+    revenue: Omit<Revenue, 'id'>,
   ): Promise<Revenue> {
     return this.revenueRepository.create(revenue);
   }

@@ -60,12 +60,11 @@ export class BikeRentalController {
         'application/json': {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInBike',
-            exclude: ['rentalId'],
-            optional: ['id']
+            exclude: ['id'],
           }),
         },
       },
-    }) rental: Omit<Rental, 'rentalId'>,
+    }) rental: Omit<Rental, 'id'>,
   ): Promise<Rental> {
     return this.bikeRepository.rentals(id).create(rental);
   }

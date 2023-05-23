@@ -7,7 +7,7 @@ export class Rental extends Entity {
     id: true,
     generated: true,
   })
-  rentalId?: number;
+  id?: number;
 
   @property({
     type: 'number',

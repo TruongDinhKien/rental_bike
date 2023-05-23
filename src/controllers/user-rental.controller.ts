@@ -60,12 +60,11 @@ export class UserRentalController {
         'application/json': {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInUser',
-            exclude: ['rentalId'],
-            optional: ['id']
+            exclude: ['id'],
           }),
         },
       },
-    }) rental: Omit<Rental, 'rentalId'>,
+    }) rental: Omit<Rental, 'id'>,
   ): Promise<Rental> {
     return this.userRepository.rentals(id).create(rental);
   }

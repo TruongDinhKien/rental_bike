@@ -21,7 +21,7 @@ import {
   SchemaObject,
   HttpErrors,
 } from '@loopback/rest'
-import { Role, Users } from '../models'
+import {  Users } from '../models'
 import { UserRepository } from '../repositories'
 import { UserService, authenticate } from '@loopback/authentication'
 import { PasswordHasherBindings, UserServiceBindings } from '../keys'
@@ -70,7 +70,7 @@ export const CredentialsRequestBody = {
 }
 
 const newUserRequestDefaultRole: Interceptor = async (invocationCtx: any, next) => {
-  if (invocationCtx.args[0]) invocationCtx.args[0].roleId = 0
+  if (invocationCtx.args[0]) invocationCtx.args[0].roles = ['user']
   const result = await next()
   return result
 }
@@ -278,7 +278,7 @@ export class AuthController {
         'application/json': {
           schema: getModelSchemaRef(NewUserRequest, {
             title: 'Create new account',
-            exclude: ['id', 'roleId'],
+            exclude: ['id', 'roles'],
           }),
         },
       },

@@ -7,7 +7,7 @@ import {
   HasOneRepositoryFactory,
 } from '@loopback/repository';
 import {DbDataSource} from '../datasources';
-import {Users, UserRelations, Role, Rental} from '../models';
+import {Users, UserRelations, Rental} from '../models';
 import {RentalRepository} from './rental.repository';
 import {UserCredentials, UserCredentialsRepository} from '@loopback/authentication-jwt';
 
@@ -21,7 +21,6 @@ export class UserRepository extends DefaultCrudRepository<
   typeof Users.prototype.id,
   UserRelations
 > {
-  public readonly role: BelongsToAccessor<Role, typeof Users.prototype.id>;
 
   public readonly rentals: HasManyRepositoryFactory<
     Rental,

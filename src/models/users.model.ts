@@ -6,7 +6,6 @@ import {
   hasMany,
   hasOne,
 } from '@loopback/repository';
-import {Role} from './role.model';
 import {Rental} from './rental.model';
 // import { UserCredentials } from '@loopback/authentication-jwt';
 import {UserCredentials} from './usercredentials.model';

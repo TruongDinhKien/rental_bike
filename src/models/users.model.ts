@@ -54,6 +54,12 @@ export class Users extends Entity {
   })
   roles?: string[];
 
+
+  @property({
+    type: 'string',
+  })
+  avatarUrl?: string;
+
   @hasMany(() => Rental, {keyFrom: 'id', keyTo: 'userId'})
   rentals: Rental[];
   // Define well-known properties here

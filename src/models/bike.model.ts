@@ -32,6 +32,11 @@ export class Bike extends Entity {
   })
   imgUrl?: string;
 
+  @property({
+    type: 'number',
+  })
+  price?: number;
+
   @belongsTo(() => Bikestatus)
   bikestatusId: number;
 

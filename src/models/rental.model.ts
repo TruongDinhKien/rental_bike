@@ -10,9 +10,9 @@ export class Rental extends Entity {
   id?: number
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  userId?: number
+  userId?: string
 
   @property({
     type: 'number',

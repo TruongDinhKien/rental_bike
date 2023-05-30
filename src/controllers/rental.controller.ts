@@ -1,35 +1,24 @@
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
-} from '@loopback/rest';
-import {Rental} from '../models';
-import {RentalRepository} from '../repositories';
+import { Count, CountSchema, Filter, FilterExcludingWhere, repository, Where } from '@loopback/repository'
+import { post, param, get, getModelSchemaRef, patch, put, del, requestBody, response, HttpErrors } from '@loopback/rest'
+import { Rental } from '../models'
+import { BikeRepository, RentalRepository, UserRepository } from '../repositories'
 
 export class RentalController {
   constructor(
     @repository(RentalRepository)
-    public rentalRepository : RentalRepository,
+    public rentalRepository: RentalRepository,
+    @repository(UserRepository) protected userRepository: UserRepository,
+    @repository(BikeRepository)
+    protected bikeRepository: BikeRepository,
   ) {}
 
   @post('/rentals')
   @response(200, {
     description: 'Rental model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Rental)}},
+    content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
+  })
+  @response(404, {
+    description: 'User not found',
   })
   async create(
     @requestBody({
@@ -44,18 +33,27 @@ export class RentalController {
     })
     rental: Omit<Rental, 'id'>,
   ): Promise<Rental> {
-    return this.rentalRepository.create(rental);
+    // Check if the user exists
+    const userExists = await this.userRepository.exists(rental.userId)
+    if (!userExists) {
+      throw new HttpErrors.NotFound('User not found')
+    }
+
+    const bikeExists = await this.bikeRepository.exists(rental.bikeId)
+    if (!bikeExists) {
+      throw new HttpErrors.NotFound('Bike not found')
+    }
+
+    return this.rentalRepository.create(rental)
   }
 
   @get('/rentals/count')
   @response(200, {
     description: 'Rental model count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
-  async count(
-    @param.where(Rental) where?: Where<Rental>,
-  ): Promise<Count> {
-    return this.rentalRepository.count(where);
+  async count(@param.where(Rental) where?: Where<Rental>): Promise<Count> {
+    return this.rentalRepository.count(where)
   }
 
   @get('/rentals')
@@ -65,34 +63,32 @@ export class RentalController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Rental, {includeRelations: true}),
+          items: getModelSchemaRef(Rental, { includeRelations: true }),
         },
       },
     },
   })
-  async find(
-    @param.filter(Rental) filter?: Filter<Rental>,
-  ): Promise<Rental[]> {
-    return this.rentalRepository.find(filter);
+  async find(@param.filter(Rental) filter?: Filter<Rental>): Promise<Rental[]> {
+    return this.rentalRepository.find(filter)
   }
 
   @patch('/rentals')
   @response(200, {
     description: 'Rental PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Rental, {partial: true}),
+          schema: getModelSchemaRef(Rental, { partial: true }),
         },
       },
     })
     rental: Rental,
     @param.where(Rental) where?: Where<Rental>,
   ): Promise<Count> {
-    return this.rentalRepository.updateAll(rental, where);
+    return this.rentalRepository.updateAll(rental, where)
   }
 
   @get('/rentals/{id}')
@@ -100,15 +96,15 @@ export class RentalController {
     description: 'Rental model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Rental, {includeRelations: true}),
+        schema: getModelSchemaRef(Rental, { includeRelations: true }),
       },
     },
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Rental, {exclude: 'where'}) filter?: FilterExcludingWhere<Rental>
+    @param.filter(Rental, { exclude: 'where' }) filter?: FilterExcludingWhere<Rental>,
   ): Promise<Rental> {
-    return this.rentalRepository.findById(id, filter);
+    return this.rentalRepository.findById(id, filter)
   }
 
   @patch('/rentals/{id}')
@@ -120,24 +116,21 @@ export class RentalController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Rental, {partial: true}),
+          schema: getModelSchemaRef(Rental, { partial: true }),
         },
       },
     })
     rental: Rental,
   ): Promise<void> {
-    await this.rentalRepository.updateById(id, rental);
+    await this.rentalRepository.updateById(id, rental)
   }
 
   @put('/rentals/{id}')
   @response(204, {
     description: 'Rental PUT success',
   })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() rental: Rental,
-  ): Promise<void> {
-    await this.rentalRepository.replaceById(id, rental);
+  async replaceById(@param.path.number('id') id: number, @requestBody() rental: Rental): Promise<void> {
+    await this.rentalRepository.replaceById(id, rental)
   }
 
   @del('/rentals/{id}')
@@ -145,6 +138,6 @@ export class RentalController {
     description: 'Rental DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.rentalRepository.deleteById(id);
+    await this.rentalRepository.deleteById(id)
   }
 }

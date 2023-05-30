@@ -1,30 +1,15 @@
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  del,
-  get,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  param,
-  patch,
-  post,
-  requestBody,
-} from '@loopback/rest';
-import {
-  Revenue,
-  Rental,
-} from '../models';
-import {RevenueRepository} from '../repositories';
+import { Count, CountSchema, Filter, repository, Where } from '@loopback/repository'
+import { del, get, getModelSchemaRef, getWhereSchemaFor, HttpErrors, param, patch, post, requestBody } from '@loopback/rest'
+import { Revenue, Rental } from '../models'
+import { BikeRepository, RevenueRepository, UserRepository } from '../repositories'
 
 export class RevenueRentalController {
   constructor(
     @repository(RevenueRepository) protected revenueRepository: RevenueRepository,
-  ) { }
+    @repository(UserRepository) protected userRepository: UserRepository,
+    @repository(BikeRepository)
+    protected bikeRepository: BikeRepository,
+  ) {}
 
   @get('/revenues/{id}/rental', {
     responses: {
@@ -42,14 +27,14 @@ export class RevenueRentalController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Rental>,
   ): Promise<Rental> {
-    return this.revenueRepository.rental(id).get(filter);
+    return this.revenueRepository.rental(id).get(filter)
   }
 
   @post('/revenues/{id}/rental', {
     responses: {
       '200': {
         description: 'Revenue model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Rental)}},
+        content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
       },
     },
   })
@@ -61,20 +46,31 @@ export class RevenueRentalController {
           schema: getModelSchemaRef(Rental, {
             title: 'NewRentalInRevenue',
             exclude: ['id'],
-            optional: ['revenueId']
+            optional: ['revenueId'],
           }),
         },
       },
-    }) rental: Omit<Rental, 'id'>,
+    })
+    rental: Omit<Rental, 'id'>,
   ): Promise<Rental> {
-    return this.revenueRepository.rental(id).create(rental);
+    console.log(rental)
+    const userExists = await this.userRepository.exists(rental.userId)
+    if (!userExists) {
+      throw new HttpErrors.NotFound('User not found')
+    }
+
+    const bikeExists = await this.bikeRepository.exists(rental.bikeId)
+    if (!bikeExists) {
+      throw new HttpErrors.NotFound('Bike not found')
+    }
+    return this.revenueRepository.rental(id).create(rental)
   }
 
   @patch('/revenues/{id}/rental', {
     responses: {
       '200': {
         description: 'Revenue.Rental PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
+        content: { 'application/json': { schema: CountSchema } },
       },
     },
   })
@@ -83,21 +79,21 @@ export class RevenueRentalController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Rental, {partial: true}),
+          schema: getModelSchemaRef(Rental, { partial: true }),
         },
       },
     })
     rental: Partial<Rental>,
     @param.query.object('where', getWhereSchemaFor(Rental)) where?: Where<Rental>,
   ): Promise<Count> {
-    return this.revenueRepository.rental(id).patch(rental, where);
+    return this.revenueRepository.rental(id).patch(rental, where)
   }
 
   @del('/revenues/{id}/rental', {
     responses: {
       '200': {
         description: 'Revenue.Rental DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
+        content: { 'application/json': { schema: CountSchema } },
       },
     },
   })
@@ -105,6 +101,6 @@ export class RevenueRentalController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Rental)) where?: Where<Rental>,
   ): Promise<Count> {
-    return this.revenueRepository.rental(id).delete(where);
+    return this.revenueRepository.rental(id).delete(where)
   }
 }

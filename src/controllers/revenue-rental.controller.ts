@@ -1,10 +1,22 @@
 import { Count, CountSchema, Filter, repository, Where } from '@loopback/repository'
-import { del, get, getModelSchemaRef, getWhereSchemaFor, HttpErrors, param, patch, post, requestBody } from '@loopback/rest'
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  getWhereSchemaFor,
+  HttpErrors,
+  param,
+  patch,
+  post,
+  requestBody,
+} from '@loopback/rest'
 import { Revenue, Rental } from '../models'
-import { BikeRepository, RevenueRepository, UserRepository } from '../repositories'
+import { BikeRepository, RentalRepository, RevenueRepository, UserRepository } from '../repositories'
 
 export class RevenueRentalController {
   constructor(
+    @repository(RentalRepository)
+    public rentalRepository: RentalRepository,
     @repository(RevenueRepository) protected revenueRepository: RevenueRepository,
     @repository(UserRepository) protected userRepository: UserRepository,
     @repository(BikeRepository)
@@ -64,6 +76,51 @@ export class RevenueRentalController {
       throw new HttpErrors.NotFound('Bike not found')
     }
     return this.revenueRepository.rental(id).create(rental)
+  }
+
+  @post('/revenues/rental', {
+    responses: {
+      '200': {
+        description: 'Rental model instance',
+        content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
+      },
+    },
+  })
+  async create1(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Rental, {
+            title: 'NewRentalInRevenue',
+            exclude: ['id'],
+            optional: ['revenueId'],
+          }),
+        },
+      },
+    })
+    rental: Omit<Rental, 'id'>,
+  ): Promise<Rental> {
+    const createdRental = await this.rentalRepository.create(rental)
+    const createdRevenue = await this.revenueRepository.create({
+      rentalId: createdRental.id,
+      amount: 1000,
+      date: new Date().toISOString(),
+    })
+    
+    const userExists = await this.userRepository.exists(rental.userId)
+    if (!userExists) {
+      throw new HttpErrors.NotFound('User not found')
+    }
+
+    const bikeExists = await this.bikeRepository.exists(rental.bikeId)
+    if (!bikeExists) {
+      throw new HttpErrors.NotFound('Bike not found')
+    }
+
+    if(!createdRevenue)
+      throw new Error("Can not create revenue");
+
+    return createdRental
   }
 
   @patch('/revenues/{id}/rental', {

@@ -132,7 +132,7 @@ export class AuthController {
     },
   })
   async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
-    return this.userRepository.find(filter)
+    return this.userRepository.find(filter, )
   }
 
   @patch('/users')

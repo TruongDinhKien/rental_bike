@@ -69,7 +69,9 @@ export class RentalController {
     },
   })
   async find(@param.filter(Rental) filter?: Filter<Rental>): Promise<Rental[]> {
-    return this.rentalRepository.find(filter)
+    return this.rentalRepository.find(filter, {
+      include: ['revenue'],
+    })
   }
 
   @patch('/rentals')

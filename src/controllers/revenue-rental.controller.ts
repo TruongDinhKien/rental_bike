@@ -39,7 +39,14 @@ export class RevenueRentalController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Rental>,
   ): Promise<Rental> {
-    return this.revenueRepository.rental(id).get(filter)
+    return this.revenueRepository.rental(id).get({
+      ...filter,
+      include: [
+        {
+          relation: 'rental',
+        },
+      ],
+    })
   }
 
   @post('/revenues/rental', {
@@ -73,18 +80,17 @@ export class RevenueRentalController {
     if (!bikeExists) {
       throw new HttpErrors.NotFound('Bike not found')
     }
-    const createdRental = await this.rentalRepository.create(rental)
-    if (!createdRental) {
-      throw new Error('Failed to create rental')
-    }
+
     const createdRevenue = await this.revenueRepository.create({
       amount: 10000,
       date: new Date().toISOString(),
-      rental: createdRental
     })
 
-    console.log(createdRental)
-    console.log(createdRevenue)
+    const rentalData: Omit<Rental, 'id' | 'revenueId'> = {
+      ...rental,
+    }
+
+    this.revenueRepository.rental(createdRevenue.id).create(rentalData)
 
     return createdRevenue
   }

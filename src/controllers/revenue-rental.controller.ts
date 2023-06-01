@@ -42,16 +42,15 @@ export class RevenueRentalController {
     return this.revenueRepository.rental(id).get(filter)
   }
 
-  @post('/revenues/{id}/rental', {
+  @post('/revenues/rental', {
     responses: {
       '200': {
         description: 'Revenue model instance',
-        content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
+        content: { 'application/json': { schema: getModelSchemaRef(Revenue) } },
       },
     },
   })
   async create(
-    @param.path.number('id') id: typeof Revenue.prototype.id,
     @requestBody({
       content: {
         'application/json': {
@@ -64,8 +63,7 @@ export class RevenueRentalController {
       },
     })
     rental: Omit<Rental, 'id'>,
-  ): Promise<Rental> {
-    console.log(rental)
+  ): Promise<Revenue> {
     const userExists = await this.userRepository.exists(rental.userId)
     if (!userExists) {
       throw new HttpErrors.NotFound('User not found')
@@ -75,52 +73,20 @@ export class RevenueRentalController {
     if (!bikeExists) {
       throw new HttpErrors.NotFound('Bike not found')
     }
-    return this.revenueRepository.rental(id).create(rental)
-  }
-
-  @post('/revenues/rental', {
-    responses: {
-      '200': {
-        description: 'Rental model instance',
-        content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
-      },
-    },
-  })
-  async create1(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Rental, {
-            title: 'NewRentalInRevenue',
-            exclude: ['id'],
-            optional: ['revenueId'],
-          }),
-        },
-      },
-    })
-    rental: Omit<Rental, 'id'>,
-  ): Promise<Rental> {
     const createdRental = await this.rentalRepository.create(rental)
+    if (!createdRental) {
+      throw new Error('Failed to create rental')
+    }
     const createdRevenue = await this.revenueRepository.create({
-      rentalId: createdRental.id,
-      amount: 1000,
+      amount: 10000,
       date: new Date().toISOString(),
+      rental: createdRental
     })
-    
-    const userExists = await this.userRepository.exists(rental.userId)
-    if (!userExists) {
-      throw new HttpErrors.NotFound('User not found')
-    }
 
-    const bikeExists = await this.bikeRepository.exists(rental.bikeId)
-    if (!bikeExists) {
-      throw new HttpErrors.NotFound('Bike not found')
-    }
+    console.log(createdRental)
+    console.log(createdRevenue)
 
-    if(!createdRevenue)
-      throw new Error("Can not create revenue");
-
-    return createdRental
+    return createdRevenue
   }
 
   @patch('/revenues/{id}/rental', {

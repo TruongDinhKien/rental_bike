@@ -186,6 +186,7 @@ export class AuthController {
     })
     users: Users,
   ): Promise<void> {
+    console.log(users);
     await this.userRepository.updateById(id, users)
   }
 

@@ -13,11 +13,6 @@ export class Revenue extends Entity {
   @property({
     type: 'number',
   })
-  rentalId?: number;
-
-  @property({
-    type: 'number',
-  })
   amount?: number;
 
   @property({

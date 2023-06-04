@@ -6,7 +6,7 @@ import { BikeRepository, BillRepository, RentalRepository, UserRepository } from
 const calDate = (startTime: string, endTime: string) => {
   const startDateTime = new Date(startTime)
   const endDateTime = new Date(endTime)
-  const oneDayInMilliseconds = 24 * 60 * 60 * 1000 // A day
+  const oneDayInMilliseconds = 60 * 60 * 1000 // A hours
   const timeDifference = endDateTime.getTime() - startDateTime.getTime()
 
   return timeDifference / oneDayInMilliseconds
@@ -22,60 +22,7 @@ export class RentalController {
     @repository(BillRepository) protected billRepository: BillRepository,
   ) {}
 
-  @post('/rentals')
-  @response(200, {
-    description: 'Rental model instance',
-    content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
-  })
-  @response(404, {
-    description: 'User not found',
-  })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Rental, {
-            title: 'NewRental',
-            exclude: ['id'],
-          }),
-        },
-      },
-    })
-    rental: Omit<Rental, 'id'>,
-  ): Promise<Rental> {
-    // Check if the user exists
-    const userExists = await this.userRepository.exists(rental.userId)
-    if (!userExists) {
-      throw new HttpErrors.BadRequest('User not found')
-    }
-
-    const bikeExists = await this.bikeRepository.findById(rental.bikeId)
-    if (!bikeExists) {
-      throw new HttpErrors.BadRequest('Bike not found')
-    }
-
-    if (!bikeExists.quantity || !(bikeExists.quantity > 0)) {
-      throw new HttpErrors.BadRequest('Insufficient quantity of bikes');
-    }
-
-    bikeExists.quantity -= 1;
-    await this.bikeRepository.update(bikeExists);
-
-    const numOfday = Math.round(calDate(rental.startTime, rental.endTime))
-    if (numOfday < 1) {
-      throw new HttpErrors.BadRequest('Time rental at least one day')
-    }
-    const createdRental = await this.rentalRepository.create({
-      ...rental,
-      amount: bikeExists.price && bikeExists.price * numOfday,
-    })
-    
-
-
-    return this.rentalRepository.create(createdRental)
-  }
-
-  @post('/rental/bills', {
+  @post('/rentals', {
     responses: {
       '200': {
         description: 'Bill model instance',
@@ -108,25 +55,26 @@ export class RentalController {
     }
 
     if (!bikeExists.quantity || !(bikeExists.quantity > 0)) {
-      throw new HttpErrors.BadRequest('Insufficient quantity of bikes');
+      throw new HttpErrors.BadRequest('Insufficient quantity of bikes')
     }
 
-    bikeExists.quantity -= 1;
-    await this.bikeRepository.update(bikeExists);
-    
+    bikeExists.quantity -= 1
+    await this.bikeRepository.update(bikeExists)
+
     const numOfday = Math.round(calDate(rental.startTime, rental.endTime))
     if (numOfday < 1) {
-      throw new HttpErrors.BadRequest('Time rental at least one day')
+      throw new HttpErrors.BadRequest('Time rental at least an hour')
     }
     const createdRental = await this.rentalRepository.create({
       ...rental,
       amount: bikeExists.price && bikeExists.price * numOfday,
     })
-    
-    this.rentalRepository.bill(createdRental.id).create({
-      totalAmount: bikeExists.price && (bikeExists.price + 0.1 * bikeExists.price)* numOfday,
-      date: new Date().toISOString(),
-    })
+
+    if (rental?.status === 'renting')
+      this.rentalRepository.bill(createdRental.id).create({
+        totalAmount: bikeExists.price && (bikeExists.price + 0.1 * bikeExists.price) * numOfday,
+        date: new Date().toISOString(),
+      })
 
     return createdRental
   }

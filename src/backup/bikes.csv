@@ -1,16 +1,16 @@
-name,description,imgUrl,bikestatusId
-Xe Đạp Địa Hình A,Xe đạp địa hình chất lượng cao với tính năng tiên tiến,https://cdn.pixabay.com/photo/2013/07/13/13/46/bicycle-161524_1280.png,1
-Xe Đạp Đường Trường B,Xe đạp đường trường nhẹ phù hợp cho các chuyến đi xa,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1
-Xe Đạp Thành Phố C,Xe đạp thành phố thoải mái với thiết kế đẹp mắt,https://cdn.pixabay.com/photo/2016/11/23/15/38/augmented-reality-1853592_1280.jpg,1
-Xe Đạp Điện E,Xe đạp điện thân thiện với môi trường với hỗ trợ đạp,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1
-Xe Đạp Gập F,Xe đạp gập nhỏ gọn dễ dàng lưu trữ và di chuyển,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1
-Xe Đạp Cruiser G,Xe đạp cruiser cổ điển cho những chuyến đi thoải mái và nhàn hạ,https://cdn.pixabay.com/photo/2016/11/18/12/49/bicycle-1834265_1280.jpg,1
-Xe Đạp Gravel H,Xe đạp gravel chắc chắn phù hợp với những cuộc phiêu lưu ngoài đường,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1
-Xe Đạp Du Lịch I,Xe đạp du lịch bền bỉ thiết kế dành cho những chuyến du lịch xa,https://cdn.pixabay.com/photo/2020/09/09/13/03/bike-riding-5557589_1280.png,1
-Xe Đạp Fixed Gear J,Xe đạp Fixed Gear đơn giản và tối giản,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1
-Xe Đạp Địa Hình K,Xe đạp địa hình linh hoạt và chắc chắn cho các đường mòn khó khăn,https://cdn.pixabay.com/photo/2016/11/18/12/49/bicycle-1834265_1280.jpg,1
-Xe Đạp Đường Trường L,Xe đạp đường trường cao cấp với thiết kế khí động học,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1
-Xe Đạp Thành Phố M,Xe đạp thành phố kiểu cổ điển với yên thoải mái,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1
-Xe Đạp Hybrid N,Xe đạp Hybrid đáng tin cậy hoàn hảo cho việc đi làm,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1
-Xe Đạp Điện O,Xe đạp điện mạnh mẽ với thời lượng pin lâu dài,https://cdn.pixabay.com/photo/2020/09/09/13/03/bike-riding-5557589_1280.png,1
-Xe Đạp Gập P,Xe đạp gập tiện lợi cho di chuyển trong thành phố,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1 
+name,description,imgUrl,bikestatusId,price,quantity
+Xe Đạp Địa Hình A,Xe đạp địa hình chất lượng cao với tính năng tiên tiến,https://cdn.pixabay.com/photo/2013/07/13/13/46/bicycle-161524_1280.png,1,10000,100
+Xe Đạp Đường Trường B,Xe đạp đường trường nhẹ phù hợp cho các chuyến đi xa,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1,10000,100
+Xe Đạp Thành Phố C,Xe đạp thành phố thoải mái với thiết kế đẹp mắt,https://cdn.pixabay.com/photo/2016/11/23/15/38/augmented-reality-1853592_1280.jpg,1,10000,100
+Xe Đạp Điện E,Xe đạp điện thân thiện với môi trường với hỗ trợ đạp,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1,20000,100
+Xe Đạp Gập F,Xe đạp gập nhỏ gọn dễ dàng lưu trữ và di chuyển,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1,10000,100
+Xe Đạp Cruiser G,Xe đạp cruiser cổ điển cho những chuyến đi thoải mái và nhàn hạ,https://cdn.pixabay.com/photo/2016/11/18/12/49/bicycle-1834265_1280.jpg,1,10000,100
+Xe Đạp Gravel H,Xe đạp gravel chắc chắn phù hợp với những cuộc phiêu lưu ngoài đường,https://cdn.pixabay.com/photo/2015/05/29/19/18/bicycle-789648_1280.jpg,1,30000,100
+Xe Đạp Du Lịch I,Xe đạp du lịch bền bỉ thiết kế dành cho những chuyến du lịch xa,https://cdn.pixabay.com/photo/2020/09/09/13/03/bike-riding-5557589_1280.png,1,10000,100
+Xe Đạp Fixed Gear J,Xe đạp Fixed Gear đơn giản và tối giản,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1,10000,10
+Xe Đạp Địa Hình K,Xe đạp địa hình linh hoạt và chắc chắn cho các đường mòn khó khăn,https://cdn.pixabay.com/photo/2016/11/18/12/49/bicycle-1834265_1280.jpg,1,10000,100
+Xe Đạp Đường Trường L,Xe đạp đường trường cao cấp với thiết kế khí động học,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1,10000,100
+Xe Đạp Thành Phố M,Xe đạp thành phố kiểu cổ điển với yên thoải mái,https://cdn.pixabay.com/photo/2019/06/12/16/59/bike-4269753_1280.jpg,1,10000,1
+Xe Đạp Hybrid N,Xe đạp Hybrid đáng tin cậy hoàn hảo cho việc đi làm,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1,10000,100
+Xe Đạp Điện O,Xe đạp điện mạnh mẽ với thời lượng pin lâu dài,https://cdn.pixabay.com/photo/2020/09/09/13/03/bike-riding-5557589_1280.png,1,10000,5
+Xe Đạp Gập P,Xe đạp gập tiện lợi cho di chuyển trong thành phố,https://cdn.pixabay.com/photo/2015/03/21/14/34/silhouette-683751_1280.jpg,1 ,10000,100

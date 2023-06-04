@@ -76,25 +76,6 @@ export class BikestatusController {
     return this.bikestatusRepository.find(filter);
   }
 
-  @patch('/bikestatuses')
-  @response(200, {
-    description: 'Bikestatus PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Bikestatus, {partial: true}),
-        },
-      },
-    })
-    bikestatus: Bikestatus,
-    @param.where(Bikestatus) where?: Where<Bikestatus>,
-  ): Promise<Count> {
-    return this.bikestatusRepository.updateAll(bikestatus, where);
-  }
-
   @get('/bikestatuses/{id}')
   @response(200, {
     description: 'Bikestatus model instance',
@@ -129,16 +110,6 @@ export class BikestatusController {
     await this.bikestatusRepository.updateById(id, bikestatus);
   }
 
-  @put('/bikestatuses/{id}')
-  @response(204, {
-    description: 'Bikestatus PUT success',
-  })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() bikestatus: Bikestatus,
-  ): Promise<void> {
-    await this.bikestatusRepository.replaceById(id, bikestatus);
-  }
 
   @del('/bikestatuses/{id}')
   @response(204, {

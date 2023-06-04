@@ -1,7 +1,16 @@
 import { Count, CountSchema, Filter, FilterExcludingWhere, repository, Where } from '@loopback/repository'
 import { post, param, get, getModelSchemaRef, patch, put, del, requestBody, response, HttpErrors } from '@loopback/rest'
-import { Rental } from '../models'
-import { BikeRepository, RentalRepository, UserRepository } from '../repositories'
+import { Bill, Rental } from '../models'
+import { BikeRepository, BillRepository, RentalRepository, UserRepository } from '../repositories'
+
+const calDate = (startTime: string, endTime: string) => {
+  const startDateTime = new Date(startTime)
+  const endDateTime = new Date(endTime)
+  const oneDayInMilliseconds = 24 * 60 * 60 * 1000 // A day
+  const timeDifference = endDateTime.getTime() - startDateTime.getTime()
+
+  return timeDifference / oneDayInMilliseconds
+}
 
 export class RentalController {
   constructor(
@@ -10,6 +19,7 @@ export class RentalController {
     @repository(UserRepository) protected userRepository: UserRepository,
     @repository(BikeRepository)
     protected bikeRepository: BikeRepository,
+    @repository(BillRepository) protected billRepository: BillRepository,
   ) {}
 
   @post('/rentals')
@@ -36,15 +46,89 @@ export class RentalController {
     // Check if the user exists
     const userExists = await this.userRepository.exists(rental.userId)
     if (!userExists) {
-      throw new HttpErrors.NotFound('User not found')
+      throw new HttpErrors.BadRequest('User not found')
     }
 
-    const bikeExists = await this.bikeRepository.exists(rental.bikeId)
+    const bikeExists = await this.bikeRepository.findById(rental.bikeId)
     if (!bikeExists) {
-      throw new HttpErrors.NotFound('Bike not found')
+      throw new HttpErrors.BadRequest('Bike not found')
     }
 
-    return this.rentalRepository.create(rental)
+    if (!bikeExists.quantity || !(bikeExists.quantity > 0)) {
+      throw new HttpErrors.BadRequest('Insufficient quantity of bikes');
+    }
+
+    bikeExists.quantity -= 1;
+    await this.bikeRepository.update(bikeExists);
+
+    const numOfday = Math.round(calDate(rental.startTime, rental.endTime))
+    if (numOfday < 1) {
+      throw new HttpErrors.BadRequest('Time rental at least one day')
+    }
+    const createdRental = await this.rentalRepository.create({
+      ...rental,
+      amount: bikeExists.price && bikeExists.price * numOfday,
+    })
+    
+
+
+    return this.rentalRepository.create(createdRental)
+  }
+
+  @post('/rental/bills', {
+    responses: {
+      '200': {
+        description: 'Bill model instance',
+        content: { 'application/json': { schema: getModelSchemaRef(Rental) } },
+      },
+    },
+  })
+  async createWithBill(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Rental, {
+            title: 'NewRentalInBill',
+            exclude: ['id'],
+            optional: ['billId'],
+          }),
+        },
+      },
+    })
+    rental: Omit<Rental, 'id'>,
+  ): Promise<Rental> {
+    const userExists = await this.userRepository.exists(rental.userId)
+    if (!userExists) {
+      throw new HttpErrors.BadRequest('User not found')
+    }
+
+    const bikeExists = await this.bikeRepository.findById(rental.bikeId)
+    if (!bikeExists) {
+      throw new HttpErrors.BadRequest('Bike not found')
+    }
+
+    if (!bikeExists.quantity || !(bikeExists.quantity > 0)) {
+      throw new HttpErrors.BadRequest('Insufficient quantity of bikes');
+    }
+
+    bikeExists.quantity -= 1;
+    await this.bikeRepository.update(bikeExists);
+    
+    const numOfday = Math.round(calDate(rental.startTime, rental.endTime))
+    if (numOfday < 1) {
+      throw new HttpErrors.BadRequest('Time rental at least one day')
+    }
+    const createdRental = await this.rentalRepository.create({
+      ...rental,
+      amount: bikeExists.price && bikeExists.price * numOfday,
+    })
+    
+    this.rentalRepository.bill(createdRental.id).create({
+      totalAmount: bikeExists.price && (bikeExists.price + 0.1 * bikeExists.price)* numOfday,
+      date: new Date().toISOString(),
+    })
+
+    return createdRental
   }
 
   @get('/rentals/count')
@@ -69,28 +153,7 @@ export class RentalController {
     },
   })
   async find(@param.filter(Rental) filter?: Filter<Rental>): Promise<Rental[]> {
-    return this.rentalRepository.find(filter, {
-      include: ['revenue'],
-    })
-  }
-
-  @patch('/rentals')
-  @response(200, {
-    description: 'Rental PATCH success count',
-    content: { 'application/json': { schema: CountSchema } },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Rental, { partial: true }),
-        },
-      },
-    })
-    rental: Rental,
-    @param.where(Rental) where?: Where<Rental>,
-  ): Promise<Count> {
-    return this.rentalRepository.updateAll(rental, where)
+    return this.rentalRepository.find(filter)
   }
 
   @get('/rentals/{id}')

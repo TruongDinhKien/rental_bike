@@ -1,6 +1,6 @@
 import { Count, CountSchema, Filter, FilterExcludingWhere, repository, Where } from '@loopback/repository'
 import { del, get, getModelSchemaRef, param, patch, post, put, requestBody, response } from '@loopback/rest'
-import { Bike } from '../models'
+import { Bike, Bikestatus } from '../models'
 import { BikeRepository } from '../repositories'
 
 export class BikeController {
@@ -56,25 +56,6 @@ export class BikeController {
     return this.bikeRepository.find({})
   }
 
-  @patch('/bikes')
-  @response(200, {
-    description: 'Bike PATCH success count',
-    content: { 'application/json': { schema: CountSchema } },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Bike, { partial: true }),
-        },
-      },
-    })
-    bike: Bike,
-    @param.where(Bike) where?: Where<Bike>,
-  ): Promise<Count> {
-    return this.bikeRepository.updateAll(bike, where)
-  }
-
   @get('/bikes/{id}')
   @response(200, {
     description: 'Bike model instance',
@@ -123,5 +104,23 @@ export class BikeController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.bikeRepository.deleteById(id)
+  } 
+
+  @get('/bikes/{id}/bikestatus', {
+    responses: {
+      '200': {
+        description: 'Bikestatus belonging to Bike',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Bikestatus),
+          },
+        },
+      },
+    },
+  })
+  async getBikestatus(
+    @param.path.number('id') id: typeof Bike.prototype.id,
+  ): Promise<Bikestatus> {
+    return this.bikeRepository.bikestatus(id);
   }
 }

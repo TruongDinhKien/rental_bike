@@ -14,7 +14,6 @@ import {
   get,
   getModelSchemaRef,
   patch,
-  put,
   del,
   requestBody,
   response,
@@ -135,25 +134,6 @@ export class AuthController {
     return this.userRepository.find(filter, )
   }
 
-  @patch('/users')
-  @response(200, {
-    description: 'User PATCH success count',
-    content: { 'application/json': { schema: CountSchema } },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Users, { partial: true }),
-        },
-      },
-    })
-    users: Users,
-    @param.where(Users) where?: Where<Users>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(users, where)
-  }
-
   @get('/users/{id}')
   @response(200, {
     description: 'User model instance',
@@ -188,14 +168,6 @@ export class AuthController {
   ): Promise<void> {
     console.log(users);
     await this.userRepository.updateById(id, users)
-  }
-
-  @put('/users/{id}')
-  @response(204, {
-    description: 'User PUT success',
-  })
-  async replaceById(@param.path.string('id') id: string, @requestBody() users: Users): Promise<void> {
-    await this.userRepository.replaceById(id, users)
   }
 
   @del('/users/{id}')

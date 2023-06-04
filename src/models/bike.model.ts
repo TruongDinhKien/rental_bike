@@ -23,6 +23,12 @@ export class Bike extends Entity {
   name?: string;
 
   @property({
+    type: 'number',
+    default: 10000
+  })
+  quantity?: number;
+
+  @property({
     type: 'string',
   })
   description?: string;
@@ -34,6 +40,7 @@ export class Bike extends Entity {
 
   @property({
     type: 'number',
+    default: 10000
   })
   price?: number;
 

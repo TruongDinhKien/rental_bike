@@ -12,7 +12,7 @@ export async function main(options: ApplicationConfig = {}) {
   console.log(`Try ${url}/ping`);
 
   return app;
-}
+}  
 
 if (require.main === module) {
   // Run the application
